@@ -129,11 +129,11 @@ spec:
       params:
         - name: ARGS
           value:
-            - --exit-code
-            - 1
-            - --severity
-            - params.SEVERITY_LEVELS
-            - filesystem
+            - "--exit-code"
+            - "1"
+            - "--severity"
+            - $(params.SEVERITY_LEVELS)
+            - "filesystem"
         - name: IMAGE_PATH
           value: $(params.LOCAL_SCAN_PATH)
       runAfter:
@@ -166,11 +166,11 @@ spec:
       params:
         - name: ARGS
           value:
-            - --exit-code
-            - 1
-            - --severity
-            - params.SEVERITY_LEVELS
-            - filesystem
+            - "--exit-code"
+            - "1"
+            - "--severity"
+            - $(params.SEVERITY_LEVELS)
+            - "filesystem"
         - name: IMAGE_PATH
           value: $(params.LOCAL_IMAGE_SCAN_PATH)
       runAfter:
@@ -201,11 +201,12 @@ spec:
       params:
         - name: ARGS
           value:
-            - --exit-code
-            - 1
-            - --severity
-            - params.SEVERITY_LEVELS
-            - --ignore-fixed image
+            - "--exit-code"
+            - "1"
+            - "--severity"
+            - $(params.SEVERITY_LEVELS)
+            - "--ignore-fixed"
+            - "image"
         - name: IMAGE_PATH
           value: "$(params.SCAN_IMAGE_URL):$(params.short-commit-id)"
       runAfter:
