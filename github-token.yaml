@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-token
+  namespace: cop-pipeline
+  annotations:
+    tekton.dev/git-0: "https://github.com/systemi-ryokawai/sample-reactive-quarkus-app.git"
+type: kubernetes.io/basic-auth
+stringData:
+  password: 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
+  username: systemi-ryokawai

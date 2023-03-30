@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pipeline
+  namespace: cop-pipeline
+secrets:
+  - name: openshift-pipelines-operator-token-jwt4p
+  - name: openshift-pipelines-operator-dockercfg-gw8ck
+  - name: github-token
+  - name: artifactory-token
+imagePullSecrets:
+  - name: openshift-pipelines-operator-dockercfg-gw8ck
