@@ -81,7 +81,7 @@ spec:
       runAfter:
         - git-clone
       taskRef:
-        kind: Task
+        kind: ClusterTask
         name: maven
       workspaces:
         - name: source
@@ -101,7 +101,7 @@ spec:
       runAfter:
         - run-test-cases
       taskRef:
-        kind: Task
+        kind: ClusterTask
         name: maven
       workspaces:
         - name: source
