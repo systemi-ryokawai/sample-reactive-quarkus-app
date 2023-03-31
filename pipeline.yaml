@@ -12,48 +12,13 @@ spec:
       description: "git revision to checkout (branch, tag, sha, ref…)"
       name: git-source-revision
       type: string
-    - description: image tag - truncated commit Id
-      name: short-commit-id
-      type: string
-    - default: "http://sonarqube-cicd-tools.apps.ocp-dev-ade.xxxdev.dev.xxx.ca"
-      description: SonarQube url for static code analysis
-      name: SONAR_URL
-      type: string
-    - default: cb98fc7b68ea37feb56d151e10b87d6dc596f4b2
-      description: SonarQube authentication token for static code analysis
-      name: SONAR_AUTH_TOKEN
-      type: string
     - default: ./
       description: image path
       name: LOCAL_SCAN_PATH
       type: string
-    - default: ./
-      description: image path
-      name: LOCAL_IMAGE_SCAN_PATH
-      type: string
-    - default: "artifactory.xxx.corp.xxx.ca:5073/ccop-dev/quarkus-ref-image-dev"
-      description: image path
-      name: REMOTE_IMAGE_URL
-      type: string
-    - default: "artifactory.xxx.corp.xxx.ca:5073/ccop-dev/quarkus-ref-image-dev"
-      description: image path for security scanning
-      name: SCAN_IMAGE_URL
-      type: string
-    - default: UNKNOWN
+    - default: CRITICAL
       description: vulnerability severity level
       name: SEVERITY_LEVELS
-      type: string
-    - default: "https://gitlab.xxx.corp.xxx.ca/xx/xxxxx/tekton-pipeline.git"
-      description: Kustomize git repo for CD
-      name: KUSTOMIZE_GIT_URL
-      type: string
-    - default: k8s/overlays/dev
-      description: Kustomize git repo context directory for CD
-      name: KUSTOMIZE_GIT_CONTEXT_DIR
-      type: string
-    - default: dev
-      description: Kustomize git repo branch
-      name: KUSTOMIZE_GIT_BRANCH
       type: string
   tasks:
     - name: git-clone
@@ -108,83 +73,8 @@ spec:
         kind: Task
         name: trivy-scanner
       workspaces:
-        - name: local-image-repo
+        - name: manifest-dir
           workspace: app-source
-    - name: build-image
-      params:
-        - name: IMAGE
-          value: $(params.REMOTE_IMAGE_URL)
-        - name: TLSVERIFY
-          value: "false"
-        - name: SKIP_PUSH
-          value: "true"
-      runAfter:
-        - build-artifact
-      taskRef:
-        kind: ClusterTask
-        name: buildah
-      workspaces:
-        - name: source
-          workspace: app-source
-        - name: varlibcontainers
-          workspace: shared-image-repo
-    - name: scan-local-image
-      params:
-        - name: ARGS
-          value:
-            - "--exit-code"
-            - "1"
-            - "--severity"
-            - $(params.SEVERITY_LEVELS)
-            - "image"
-        - name: IMAGE_PATH
-          value: $(params.LOCAL_IMAGE_SCAN_PATH)
-      runAfter:
-        - build-image
-      taskRef:
-        kind: Task
-        name: trivy-scanner
-      workspaces:
-        - name: local-image-repo
-          workspace: shared-image-repo
-    - name: push-image
-      params:
-        - name: IMAGE
-          value: $(params.REMOTE_IMAGE_URL)
-        - name: TLSVERIFY
-          value: "false"
-      runAfter:
-        - build-image
-      taskRef:
-        kind: ClusterTask
-        name: buildah
-      workspaces:
-        - name: source
-          workspace: app-source
-        - name: varlibcontainers
-          workspace: shared-image-repo
-    - name: scan-remote-image
-      params:
-        - name: ARGS
-          value:
-            - "--exit-code"
-            - "1"
-            - "--severity"
-            - $(params.SEVERITY_LEVELS)
-            - "--ignore-fixed"
-            - "image"
-        - name: IMAGE_PATH
-          value: "$(params.SCAN_IMAGE_URL):$(params.short-commit-id)"
-      runAfter:
-        - push-image
-      taskRef:
-        kind: Task
-        name: trivy-scanner
-      workspaces:
-        - name: local-image-repo
-          workspace: shared-image-repo
   workspaces:
     - name: app-source
     - name: maven-settings
-    - name: shared-image-repo
-    - name: kustomize-repo
