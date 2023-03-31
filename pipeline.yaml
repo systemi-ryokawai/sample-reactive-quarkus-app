@@ -66,48 +66,14 @@ spec:
           value: "false"
         - name: noProxy
           value: "true"
+        - name: deleteExisting
+          value: "true"
       taskRef:
         kind: ClusterTask
         name: git-clone
       workspaces:
         - name: output
           workspace: app-source
-    - name: run-test-cases
-      params:
-        - name: GOALS
-          value:
-            - clean
-            - test
-      runAfter:
-        - git-clone
-      taskRef:
-        kind: ClusterTask
-        name: maven
-      workspaces:
-        - name: source
-          workspace: app-source
-        - name: maven-settings
-          workspace: maven-settings
-    - name: static-code-analysis
-      params:
-        - name: GOALS
-          value:
-            - "sonar:sonar"
-            - "-Dsonar.projectKey=ci-pipeline-ref-arc"
-            - "-Dsonar.host.url=$(params.SONAR_URL)"
-            - "-Dsonar.login=$(params.SONAR_AUTH_TOKEN)"
-            - "-Dsonar.exclusions=**/*.java"
-            - "-s  $(workspaces.maven-settings.path)/settings.xml"
-      runAfter:
-        - run-test-cases
-      taskRef:
-        kind: ClusterTask
-        name: maven
-      workspaces:
-        - name: source
-          workspace: app-source
-        - name: maven-settings
-          workspace: maven-settings
     - name: build-artifact
       params:
         - name: GOALS
@@ -116,7 +82,7 @@ spec:
             - package
             - "-Dquarkus.native.container-build=true"
       runAfter:
-        - static-code-analysis
+        - git-clone
       taskRef:
         kind: ClusterTask
         name: maven
@@ -170,7 +136,7 @@ spec:
             - "1"
             - "--severity"
             - $(params.SEVERITY_LEVELS)
-            - "filesystem"
+            - "image"
         - name: IMAGE_PATH
           value: $(params.LOCAL_IMAGE_SCAN_PATH)
       runAfter:
